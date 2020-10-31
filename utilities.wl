@@ -9,7 +9,8 @@ convertToSInumbersRuleList::usage="function to convert right-hand sides of list 
 convertToSINumericExpression::usage="function to turn expressions containing Quantity and QuantityVariable into mixed symbolic/numeric expressions after converting to SI";
 entityTypeNotYetRegistered::usage="entityTypeNotYetRegistered[type] returns True if the given entity type has not yet been registered";
 entityTypeAlreadyRegistered::usage="entityTypeAlreadyRegistered[type] returns True if the given entity type has already been registered";
-multiply2DCoordinatesBySeparateFactors::usage="multiply2DCoordinatesBySeparateFactors[coordsList,factorList] multiplies the elements of coordsList by the respective factors in factorList"
+multiply2DCoordinatesBySeparateFactors::usage="multiply2DCoordinatesBySeparateFactors[coordsList,factorList] multiplies the elements of coordsList by the respective factors in factorList";
+recursiveDirectoryNameSearch::usage="recursiveDirectoryNameSearch[nameToFind,pathLengthToStopAt] searches for the file/directory name nameToFind starting from the current notebook's directory and stopping when the remaining path becomes pathLengthToStopAt long, returning $Failed in case it did not find anything";
 Begin["`Private`"]
 simplifyRule=Thread[Rule[#[[All,1]],#[[All,2]]//.#]]&;
 convertToSInumbers=QuantityMagnitude[UnitConvert[#]]&;
@@ -22,8 +23,6 @@ expr/.{QuantityVariable->convertQuantityVariableToExpression,Quantity[x_,y_]->co
 entityTypeNotYetRegistered[type_String]:=MissingQ[Entity[type]["EntityStore"]];
 entityTypeAlreadyRegistered[type_String]:=Not[entityTypeNotYetRegistered[type]];
 multiply2DCoordinatesBySeparateFactors[coordsList_,factorList_]:=Map[{factorList[[1]] #[[1]] , factorList[[2]]#[[2]]}&,coordsList];
+recursiveDirectoryNameSearch[nameToFind_,pathLengthToStopAt_:2]:=Block[{p=NotebookDirectory[]},Catch[While[FileNames[nameToFind,p]==={},p=ParentDirectory[p];If[Length@FileNameSplit[p]==pathLengthToStopAt,Throw[$Failed]]];p]];
 End[]
 EndPackage[]
-
-
-
