@@ -1,0 +1,29 @@
+(* ::Package:: *)
+
+(* ::Input::Initialization:: *)
+BeginPackage["utilities`"]
+simplifyRule::usage="function that evaluates lists of rules such that the right-hand sides do not change anymore due to other rules from the list";
+convertToSInumbers::usage="function to turn Quantites into numbers after converting to SI";
+mapFunctionToRuleValues::usage="mapFunctionToRuleValues[function,ruleList] maps function over right-hand sides of list of rules ruleList";
+convertToSInumbersRuleList::usage="function to convert right-hand sides of list of rules to SI-based numbers";
+convertToSINumericExpression::usage="function to turn expressions containing Quantity and QuantityVariable into mixed symbolic/numeric expressions after converting to SI";
+entityTypeNotYetRegistered::usage="entityTypeNotYetRegistered[type] returns True if the given entity type has not yet been registered";
+entityTypeAlreadyRegistered::usage="entityTypeAlreadyRegistered[type] returns True if the given entity type has already been registered";
+multiply2DCoordinatesBySeparateFactors::usage="multiply2DCoordinatesBySeparateFactors[coordsList,factorList] multiplies the elements of coordsList by the respective factors in factorList"
+Begin["`Private`"]
+simplifyRule=Thread[Rule[#[[All,1]],#[[All,2]]//.#]]&;
+convertToSInumbers=QuantityMagnitude[UnitConvert[#]]&;
+mapFunctionToRuleValues[function_,ruleList_]:=Normal[Map[function,Association[ruleList]]];
+convertToSInumbersRuleList[ruleList_]:=mapFunctionToRuleValues[convertToSInumbers,ruleList];
+convertToSINumericExpression[expr_]:=Module[{convertQuantityVariableToExpression},
+convertQuantityVariableToExpression[x_]:=ToExpression[x];
+convertQuantityVariableToExpression[x_,y_]:=convertQuantityVariableToExpression[x];
+expr/.{QuantityVariable->convertQuantityVariableToExpression,Quantity[x_,y_]->convertToSInumbers[Quantity[x,y]]}]
+entityTypeNotYetRegistered[type_String]:=MissingQ[Entity[type]["EntityStore"]];
+entityTypeAlreadyRegistered[type_String]:=Not[entityTypeNotYetRegistered[type]];
+multiply2DCoordinatesBySeparateFactors[coordsList_,factorList_]:=Map[{factorList[[1]] #[[1]] , factorList[[2]]#[[2]]}&,coordsList];
+End[]
+EndPackage[]
+
+
+
