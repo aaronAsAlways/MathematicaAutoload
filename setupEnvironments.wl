@@ -18,7 +18,7 @@ If[FailureQ[NotebookDirectory[]],Echo[FileBaseName[$InputFileName]<>" must only 
 
 (* ::Input::Initialization:: *)
 Begin["`Private`"]
-setProjectPath[]:=Block[{dirName=utilities`recursiveDirectoryNameSearch[".git"]},Print[dirName];If[FailureQ[dirName],If[Not@MemberQ[$Path,dirName],Echo["Could not find .git directory. Package only works from within a git repository."];Return[$Failed],AppendTo[$Path, dirName];AppendTo[$Path, FileNameJoin[{dirName,"MathematicaPackages"}]];Print["Directory "<>dirName<>" added to $Path."],Print["Directory "<>dirName<>" already added to $Path."]];dirName]];
+setProjectPath[]:=Block[{dirName=utilities`recursiveDirectoryNameSearch[".git"]},Print[dirName];If[FailureQ[dirName],Echo["Could not find .git directory. Package only works from within a git repository."];Return[$Failed],If[Not@MemberQ[$Path,dirName],AppendTo[$Path, dirName];AppendTo[$Path, FileNameJoin[{dirName,"MathematicaPackages"}]];Print["Directory "<>dirName<>" added to $Path."],Print["Directory "<>dirName<>" already added to $Path."]];dirName]];
 projectDirectory[]=setProjectPath[];
 dataDirectoryName="MathematicaDataStorage";
 SetAttributes[saveSymbolsToFile,HoldAll](* this is required to avoid evaluation of the symbol name(s) before they arrive inside DumpSave; since there is not HoldLast, we use HoldAll *);
