@@ -11,6 +11,7 @@ entityTypeNotYetRegistered::usage="entityTypeNotYetRegistered[type] returns True
 entityTypeAlreadyRegistered::usage="entityTypeAlreadyRegistered[type] returns True if the given entity type has already been registered";
 multiply2DCoordinatesBySeparateFactors::usage="multiply2DCoordinatesBySeparateFactors[coordsList,factorList] multiplies the elements of coordsList by the respective factors in factorList";
 recursiveDirectoryNameSearch::usage="recursiveDirectoryNameSearch[nameToFind,pathLengthToStopAt] searches for the file/directory name nameToFind starting from the current notebook's directory and stopping when the remaining path becomes pathLengthToStopAt long, returning $Failed in case it did not find anything";
+convertStringToRealNumber::usage="convertStringToRealNumber[string] applies a JSON-based conversion to a string to return a real number";
 Begin["`Private`"]
 simplifyRule=Thread[Rule[#[[All,1]],#[[All,2]]//.#]]&;
 convertToSInumbers=QuantityMagnitude[UnitConvert[#]]&;
@@ -24,5 +25,6 @@ entityTypeNotYetRegistered[type_String]:=MissingQ[Entity[type]["EntityStore"]];
 entityTypeAlreadyRegistered[type_String]:=Not[entityTypeNotYetRegistered[type]];
 multiply2DCoordinatesBySeparateFactors[coordsList_,factorList_]:=Map[{factorList[[1]] #[[1]] , factorList[[2]]#[[2]]}&,coordsList];
 recursiveDirectoryNameSearch[nameToFind_,pathLengthToStopAt_:2]:=Block[{p=NotebookDirectory[]},Catch[While[FileNames[nameToFind,p]==={},p=ParentDirectory[p];If[Length@FileNameSplit[p]==pathLengthToStopAt,Throw[$Failed]]];p]];
+convertStringToRealNumber=N@ImportString[#,"JSON"]&;
 End[]
 EndPackage[]
