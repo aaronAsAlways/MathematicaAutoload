@@ -26,7 +26,7 @@ setProjectPath[]:=Block[{dirName=utilities`recursiveDirectoryNameSearch[".git"]}
 projectDirectory[]=setProjectPath[];
 dataDirectoryName="MathematicaDataStorage";
 projectDataDirectory[]:=FileNameJoin[{projectDirectory[],dataDirectoryName}];
-SetAttributes[saveSymbolsToFile,HoldAll](* this is required to avoid evaluation of the symbol name(s) before they arrive inside DumpSave; since there is not HoldLast, we use HoldAll *);
+SetAttributes[saveSymbolsToFile,HoldRest](* this is required to avoid evaluation of the symbol name(s) before they arrive inside DumpSave *);
 saveSymbolsToFile[fileBaseName_String, symbols_]:=DumpSave[FileNameJoin[{projectDataDirectory[],fileBaseName<>".mx"}],symbols];
 loadSymbolsFromFile[fileBaseName_String]:=DumpGet[FileNameJoin[{projectDataDirectory[],fileBaseName<>".mx"}]];
 saveListToFile[fileBaseName_String,list_]:=Export[FileNameJoin[{projectDataDirectory[],fileBaseName<>".csv"}],list];
