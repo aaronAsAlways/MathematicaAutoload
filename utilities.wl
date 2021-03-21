@@ -12,6 +12,8 @@ entityTypeAlreadyRegistered::usage="entityTypeAlreadyRegistered[type] returns Tr
 multiply2DCoordinatesBySeparateFactors::usage="multiply2DCoordinatesBySeparateFactors[coordsList,factorList] multiplies the elements of coordsList by the respective factors in factorList";
 recursiveDirectoryNameSearch::usage="recursiveDirectoryNameSearch[nameToFind,pathLengthToStopAt] searches for the file/directory name nameToFind starting from the current notebook's directory and stopping when the remaining path becomes pathLengthToStopAt long, returning $Failed in case it did not find anything";
 convertStringToRealNumber::usage="convertStringToRealNumber[string] applies a JSON-based conversion to a string to return a real number";
+functionQ::usage="functionQ[symbol] returns True if <symbol> is a function and False otherwise";
+reverseRule::usage="reverseRule[<rule>] reverses the order of the given rule such that x\[Rule]y becomes y\[Rule]x";
 Begin["`Private`"]
 simplifyRule=Thread[Rule[#[[All,1]],#[[All,2]]//.#]]&;
 convertToSInumbers=QuantityMagnitude[UnitConvert[#]]&;
@@ -26,5 +28,7 @@ entityTypeAlreadyRegistered[type_String]:=Not[entityTypeNotYetRegistered[type]];
 multiply2DCoordinatesBySeparateFactors[coordsList_,factorList_]:=Map[{factorList[[1]] #[[1]] , factorList[[2]]#[[2]]}&,coordsList];
 recursiveDirectoryNameSearch[nameToFind_,pathLengthToStopAt_:2]:=Block[{p=NotebookDirectory[]},Catch[While[FileNames[nameToFind,p]==={},p=ParentDirectory[p];If[Length@FileNameSplit[p]==pathLengthToStopAt,Throw[$Failed]]];p]];
 convertStringToRealNumber=N@ImportString[#,"JSON"]&;
+functionQ=Not[DownValues[#]==={}]&;
+reverseRule=ReplaceAll[#,Rule[arg1_,arg2_]:>Rule[arg2,arg1]]&;
 End[]
 EndPackage[]
