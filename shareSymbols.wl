@@ -6,6 +6,7 @@
 
 (* ::Input::Initialization:: *)
 BeginPackage["shareSymbols`",{"setupEnvironments`","utilities`"}]
+listDataFiles::usage="listDataFiles[] returns a list of all files within the default data directory of the current project";
 symbolNameString::usage="symbolNameString[<symbol>] returns a string 'symbol'";
 saveSymbol::usage="saveSymbol[symbol,subdir] writes <symbol> to a file bearing its name with ending <expressionFileEnding> in subdirectory <subdir> (default: \"\") of the default data directory of the current project";
 loadSymbol::usage="loadSymbol[symbol,subdir] loads <symbol> from a file bearing its name with ending <expressionFileEnding> in subdirectory <subdir> (default: \"\") in the default data directory of the current project and returns its value";
@@ -21,6 +22,7 @@ expressionFileEnding::usage="expressionFileEnding holds the file ending under wh
 
 (* ::Input::Initialization:: *)
 Begin["`Private`"]
+listDataFiles[]:=FileNameTake[#,-1]&/@FileNames["*",setupEnvironments`projectDataDirectory[]];
 expressionFileEnding="sym";
 SetAttributes[symbolNameString,HoldFirst];
 symbolNameString[symbol_]:=ToString@HoldForm@symbol;
@@ -28,7 +30,7 @@ SetAttributes[saveSymbol,HoldFirst];
 saveSymbol[symbol_,subdir_:""]:=Export[FileNameJoin[{setupEnvironments`projectDataDirectory[],subdir,symbolNameString[symbol]<>"."<>expressionFileEnding}],symbol,"MathML"];
 SetAttributes[loadSymbol,HoldFirst]
 loadSymbol[symbol_,subdir_:""]:=ToExpression@Import[FileNameJoin[{setupEnvironments`projectDataDirectory[],subdir,symbolNameString[symbol]<>"."<>expressionFileEnding}],"MathML"];
-SetAttributes[saveSymbolsToFile,HoldRest](* this is required to avoid evaluation of the symbol name(s) before they arrive inside DumpSave *);
+SetAttributes[saveSymbolsToMXFile,HoldRest](* this is required to avoid evaluation of the symbol name(s) before they arrive inside DumpSave *);
 saveSymbolsToMXFile[fileBaseName_String, symbols_]:=DumpSave[FileNameJoin[{setupEnvironments`projectDataDirectory[],fileBaseName<>".mx"}],symbols];
 loadSymbolsFromMXFile[fileBaseName_String]:=DumpGet[FileNameJoin[{setupEnvironments`projectDataDirectory[],fileBaseName<>".mx"}]];
 saveListToCSVFile[fileBaseName_String,list_,headers_:{}]:=Export[FileNameJoin[{setupEnvironments`projectDataDirectory[],fileBaseName<>".csv"}],list,"TableHeadings"->If[headers==={},None,ExportString[ToString[#],"String"(* this proved very important for exporting Greek letters as symbols, so change with care *)]&/@headers]];
