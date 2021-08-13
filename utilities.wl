@@ -15,6 +15,7 @@ convertStringToRealNumber::usage="convertStringToRealNumber[string] applies a JS
 functionQ::usage="functionQ[symbol] returns True if <symbol> is a function and False otherwise";
 reverseRule::usage="reverseRule[<rule>] reverses the order of the given rule such that x\[Rule]y becomes y\[Rule]x";
 interpolateInAssociation::usage="interpolateInAssociation[assoc,xKey,xValue,yKey,yContainerKey] returns a value for the property <yKey> interpolated at the x position <xValue> of property <xKey> within the association <assoc> (which contains of repeated list of rules with equal keys); if the <yKey>->yValue rules are stored under yet another (optional) key <yContainerKey>, they will be looked up";
+padSublistsWithConstants::usage="padSublistsWithConstants[list,parameters] pads list's sublists with constants by joining the list parameters with each of them";
 Begin["`Private`"]
 simplifyRule=Thread[Rule[#[[All,1]],#[[All,2]]//.#]]&;
 convertToSInumbers=QuantityMagnitude[UnitConvert[#]]&;
@@ -32,5 +33,6 @@ convertStringToRealNumber=N@ImportString[#,"JSON"]&;
 functionQ=Not[DownValues[#]==={}]&;
 reverseRule=ReplaceAll[#,Rule[arg1_,arg2_]:>Rule[arg2,arg1]]&;
 interpolateInAssociation[assoc_,xKey_,xValue_,yKey_,yContainerKey_:"unlikelyKeyName"]:=Interpolation[Transpose[{Lookup[xKey]@assoc,Lookup[yKey]@With[{found=Lookup[yContainerKey]@assoc},If[Head[found[[1]](* a list is always returned *)]===Missing,assoc,found]]}],xValue];
+padSublistsWithConstants[list_List,parameters_List]:=Join[#,parameters]&/@list;
 End[]
 EndPackage[]
