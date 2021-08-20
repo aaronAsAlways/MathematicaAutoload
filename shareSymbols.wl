@@ -6,6 +6,7 @@
 
 (* ::Input::Initialization:: *)
 BeginPackage["shareSymbols`",{"setupEnvironments`","utilities`"}]
+If[FailureQ[NotebookDirectory[]],Echo[FileBaseName[$InputFileName]<>" must only be loaded from a saved notebook!"]];
 listDataFiles::usage="listDataFiles[] returns a list of all files within the default data directory of the current project";
 symbolNameString::usage="symbolNameString[<symbol>] returns a string 'symbol'";
 saveSymbol::usage="saveSymbol[symbol,subdir] writes <symbol> to a file bearing its name with ending <expressionFileEnding> in subdirectory <subdir> (default: \"\") of the default data directory of the current project";
@@ -16,8 +17,8 @@ loadSymbolsFromMXFile::usage="loadSymbolsFromMXFile[fileBaseName] loads symbols 
 saveListToCSVFile::usage="saveListToCSVFile[fileBaseName,list] saves a list to a data file fileBaseName.csv in the default data directory of the current project";
 loadListFromCSVFile::usage="loadListFromCSVFile[fileBaseName] returns the list saved in the file fileBaseName.csv in the default data directory of the current project";
 listDataDirectoryFiles::usage="listDataDirectoryFiles[] returns a list of all files within the default data directory of the current project";
-If[FailureQ[NotebookDirectory[]],Echo[FileBaseName[$InputFileName]<>" must only be loaded from a saved notebook!"]];
 expressionFileEnding::usage="expressionFileEnding holds the file ending under which symbols are stored";
+createModelicaLikeString::usage="createModelicaLikeString[expression] converts expression into a string that is compatible with Modelica notation; setting appendSemicolon->False avoids the semicolon at the end";
 
 
 (* ::Input::Initialization:: *)
@@ -37,6 +38,7 @@ saveListToCSVFile[fileBaseName_String,list_,headers_:{}]:=Export[FileNameJoin[{s
 loadListFromCSVFile[fileBaseName_String]:=Import[FileNameJoin[{setupEnvironments`projectDataDirectory[],fileBaseName<>".csv"}](* omitting "Table" or "Data" here proved very important for exporting Greek letters as symbols, so change with care *)];
 listDataDirectoryFiles[]:=FileNameTake[#,-1]&/@FileNames["*",setupEnvironments`projectDataDirectory[],\[Infinity]];
 listSavedSymbols[]:=Reverse@FileNameSplit@StringDelete["."<>expressionFileEnding]@FileNameTake[#,{Length@FileNameSplit[projectDataDirectory[]]+1,-1}]&/@FileNames["*."<>expressionFileEnding,projectDataDirectory[],\[Infinity]];
+createModelicaLikeString[expression_,OptionsPattern[appendSemicolon->True]]:=StringReplace[expression//InputForm//ToString,{"Sqrt"->"sqrt","["->"(","]"->")","=="->"=","\[Rho]"->"rho","\[Delta]"->"delta","\[Alpha]"->"alpha","\[Beta]"->"beta","m"~~"\[LetterSpace]"...~~"flow"->"m_flow"}]<>If[OptionValue[appendSemicolon],";",""]
 End[]
 
 
