@@ -40,7 +40,7 @@ saveListToCSVFile[fileBaseName_String,list_,headers_:{}]:=Export[FileNameJoin[{s
 loadListFromCSVFile[fileBaseName_String]:=Import[FileNameJoin[{setupEnvironments`projectDataDirectory[],StringDelete[fileBaseName,".csv"(* avoid duplicate csv ending if function is called with ending *)]<>".csv"}](* omitting "Table" or "Data" here proved very important for exporting Greek letters as symbols, so change with care *)];
 listDataDirectoryFiles[]:=FileNameTake[#,-1]&/@FileNames["*",setupEnvironments`projectDataDirectory[],\[Infinity]];
 listSavedSymbols[]:=Reverse@FileNameSplit@StringDelete["."<>expressionFileEnding]@FileNameTake[#,{Length@FileNameSplit[projectDataDirectory[]]+1,-1}]&/@FileNames["*."<>expressionFileEnding,projectDataDirectory[],\[Infinity]];
-createModelicaLikeString[expression_,OptionsPattern[appendSemicolon->True]]:=StringReplace[expression//InputForm//ToString,{"Sqrt"->"sqrt","["->"(","]"->")","=="->"=","\[Rho]"->"rho","\[Delta]"->"delta","\[Alpha]"->"alpha","\[Beta]"->"beta","m"~~"\[LetterSpace]"...~~"flow"->"m_flow"}]<>If[OptionValue[appendSemicolon],";",""]
+createModelicaLikeString[expression_,OptionsPattern[appendSemicolon->True]]:=StringReplace[expression//InputForm//ToString,{"Sqrt"->"sqrt","["->"(","]"->")","=="->"=","\[Rho]"->"rho","\[Delta]"->"delta","\[Alpha]"->"alpha","\[Beta]"->"beta","\[Gamma]"->"gamma","m"~~"\[LetterSpace]"...~~"flow"->"m_flow","*^"->"e"}]<>If[OptionValue[appendSemicolon],";",""]
 End[]
 
 
