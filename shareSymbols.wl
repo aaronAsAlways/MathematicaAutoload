@@ -10,7 +10,7 @@ If[FailureQ[NotebookDirectory[]],Echo[FileBaseName[$InputFileName]<>" must only 
 listDataFiles::usage="listDataFiles[] returns a list of all files within the default data directory of the current project";
 symbolNameString::usage="symbolNameString[<symbol>] returns a string 'symbol'";
 saveSymbol::usage="saveSymbol[symbol,subdir] writes <symbol> to a file bearing its name with ending <expressionFileEnding> in subdirectory <subdir> (default: \"\") of the default data directory of the current project";
-loadSymbol::usage="loadSymbol[symbol,subdir] loads <symbol> from a file bearing its name with ending <expressionFileEnding> in subdirectory <subdir> (default: \"\") in the default data directory of the current project and returns its value";
+loadSymbol::usage="loadSymbol[symbol,subdir] loads <symbol> from a file bearing its name with ending <expressionFileEnding> in subdirectory <subdir> (default: \"\") in the default data directory of the current project and returns its value (<subdir> can be several arguments according to the subdirectory tree reversed)";
 deleteSymbol::usage="deleteSymbol[symbol,subdir] deletes the file containing <symbol> from the subdirectory <subdir> (default: \"\") in the default data directory of the current project";
 listSavedSymbols::usage="listSavedSymbols[] returns a list of saved symbols and subdirectories in string form by scanning the default data directory; the result can be evaluated using loadSymbol@@@listSavedSymbols[]";
 saveSymbolsToMXFile::usage="saveSymbolsToMXFile[fileBaseName,symbols,subdir] saves a symbol or list of symbols to a file <fileBaseName.mx> in the subdirectory <subdir> of the default data directory of the current project";
@@ -31,7 +31,7 @@ symbolNameString[symbol_]:=ToString@HoldForm@symbol;
 SetAttributes[saveSymbol,HoldFirst];
 saveSymbol[symbol_,subdir_:""]:=Export[FileNameJoin[{setupEnvironments`projectDataDirectory[],subdir,symbolNameString[symbol]<>"."<>expressionFileEnding}],symbol,"MathML"];
 SetAttributes[loadSymbol,HoldFirst]
-loadSymbol[symbol_,subdir_:""]:=ToExpression@Import[FileNameJoin[{setupEnvironments`projectDataDirectory[],subdir,symbolNameString[symbol]<>"."<>expressionFileEnding}],"MathML"];
+loadSymbol[symbol_,subdir___:""]:=ToExpression@Import[FileNameJoin[Flatten@{setupEnvironments`projectDataDirectory[],Reverse@{subdir},symbolNameString[symbol]<>"."<>expressionFileEnding}],"MathML"];
 deleteSymbol[symbol_,subdir_:""]:=DeleteFile[FileNameJoin[{setupEnvironments`projectDataDirectory[],subdir,symbolNameString[symbol]<>"."<>expressionFileEnding}]];
 SetAttributes[saveSymbolsToMXFile,HoldRest](* this is required to avoid evaluation of the symbol name(s) before they arrive inside DumpSave *);
 saveSymbolsToMXFile[fileBaseName_String, symbols_,subdir_:""]:=DumpSave[FileNameJoin[{setupEnvironments`projectDataDirectory[],subdir,fileBaseName<>".mx"}],symbols];
