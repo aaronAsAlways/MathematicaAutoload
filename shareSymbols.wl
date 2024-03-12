@@ -19,6 +19,7 @@ saveListToCSVFile::usage="saveListToCSVFile[fileBaseName,list] saves a list to a
 loadListFromCSVFile::usage="loadListFromCSVFile[fileBaseName] returns the list saved in the file fileBaseName.csv in the default data directory of the current projectsetting;  useAsRelativePath->False uses the full path of <fileBaseName> rather than the data directory";
 listDataDirectoryFiles::usage="listDataDirectoryFiles[] returns a list of all files within the default data directory of the current project";
 expressionFileEnding::usage="expressionFileEnding holds the file ending under which symbols are stored";
+modelicaReplacements::usage="modelicaReplacements is a list of rules for replacing variable name strings by something that is suited for Modelica variables";
 createModelicaLikeString::usage="createModelicaLikeString[expression] converts expression into a string that is compatible with Modelica notation; setting appendSemicolon->False avoids the semicolon at the end";
 
 
@@ -40,7 +41,8 @@ saveListToCSVFile[fileBaseName_String,list_,headers_:{},OptionsPattern[{useAsRel
 loadListFromCSVFile[fileBaseName_String,OptionsPattern[{useAsRelativePath->True}]]:=Import[FileNameJoin[{If[OptionValue[useAsRelativePath],setupEnvironments`projectDataDirectory[],Nothing],StringDelete[fileBaseName,".csv"(* avoid duplicate csv ending if function is called with ending *)]<>".csv"}](* omitting "Table" or "Data" here proved very important for exporting Greek letters as symbols, so change with care *)];
 listDataDirectoryFiles[]:=FileNameTake[#,-1]&/@FileNames["*",setupEnvironments`projectDataDirectory[],\[Infinity]];
 listSavedSymbols[]:=Reverse@FileNameSplit@StringDelete["."<>expressionFileEnding]@FileNameTake[#,{Length@FileNameSplit[projectDataDirectory[]]+1,-1}]&/@FileNames["*."<>expressionFileEnding,projectDataDirectory[],\[Infinity]];
-createModelicaLikeString[expression_,OptionsPattern[appendSemicolon->True]]:=StringReplace[expression//InputForm//ToString,{"Log"->"log","Sqrt"->"sqrt","["->"(","]"->")","=="->"=","\[Rho]"->"rho","\[Mu]"->"eta","\[Eta]"->"eta","\[Delta]"->"delta","\[Alpha]"->"alpha","\[Beta]"->"beta","\[Gamma]"->"gamma","\[Kappa]"->"kappa","m"~~"\[LetterSpace]"...~~"flow"->"m_flow","E^"->"exp","*^"->"e"}]<>If[OptionValue[appendSemicolon],";",""]
+modelicaReplacements={"Log"->"log","Sqrt"->"sqrt","["->"(","]"->")","=="->"=","\[Rho]"->"rho","\[Mu]"->"eta","\[Eta]"->"eta","\[Delta]"->"delta","\[Alpha]"->"alpha","\[Beta]"->"beta","\[Gamma]"->"gamma","\[Kappa]"->"kappa","m"~~"\[LetterSpace]"...~~"flow"->"m_flow","E^"->"exp","*^"->"e"};
+createModelicaLikeString[expression_,OptionsPattern[appendSemicolon->True]]:=StringReplace[expression//InputForm//ToString,modelicaReplacements]<>If[OptionValue[appendSemicolon],";",""]
 End[]
 
 
