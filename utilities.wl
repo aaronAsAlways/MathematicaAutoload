@@ -2,6 +2,7 @@
 
 (* ::Input::Initialization:: *)
 BeginPackage["utilities`"]
+cleanNotebooks::usage = "Argument-free function that opens a dialog for cleaning one or multplie notebooks for git usage";
 simplifyRule::usage="function that evaluates lists of rules such that the right-hand sides do not change anymore due to other rules from the list";
 convertToSInumbers::usage="function to turn Quantites into numbers after converting to SI";
 mapFunctionToRuleValues::usage="mapFunctionToRuleValues[function,ruleList] maps function over right-hand sides of list of rules ruleList";
@@ -19,6 +20,11 @@ padSublistsWithConstants::usage="padSublistsWithConstants[list,parameters] pads 
 readColumnwiseFile::usage="readColumnwiseFile[file,nHeaderLines,nColumns] reads a text file with nColumns numeric columns and skips nHeaderLines header lines";
 numericallyEqualQ::usage="numericallyEqualQ[a,b,absTol] returns true if real numbers a and b are numerically equal within absolute tolerance absTol (optional, default 1e-5)";
 Begin["`Private`"]
+cleanNotebook=Function[{nb},Module[{nbObj=NotebookOpen[nb],nbRaw,nbText},(*If[nb\[Equal]NotebookFileName[],Return[]];*)nbRaw=NotebookGet[nbObj];nbRaw=DeleteCases[nbRaw,HoldPattern[CellChangeTimes->{___}],\[Infinity]];
+nbRaw=Replace[nbRaw,_String?(StringContainsQ["In["~~NumberString~~"]:="]):>"",\[Infinity]];NotebookPut[nbRaw,nbObj];SetOptions[nbObj,NotebookEventActions->{"WindowClose"->FrontEndExecute[FrontEndToken["DeleteGeneratedCells"]]},PrivateNotebookOptions->{"FileOutlineCache"->False},"TrackCellChangeTimes"->False,CreateCellID->False];NotebookSave[nbObj];NotebookClose[nbObj];nbText=Import[nb,"Text"];(*nbText=StringReplace[nbText,"\""~~Shortest[x___]~~"\""/;(StringLength/@StringSplit[StringDelete[x,"\\\n"(* ignore line breaks within the text *)],"-"])===(* compare to defined length of UUID substrings *){8,4,4,4,12}\[RuleDelayed]"\"\""];*) (* since it uses a condition (/;) it is much slower than the solution below, though the latter is a bit less specific *)
+nbText=StringReplace[nbText,"\""~~Shortest[WordCharacter..~~"-"~~WordCharacter..~~"-"~~WordCharacter..~~"-"~~WordCharacter..~~"-"~~WordCharacter..]~~"\"":>"\"\""];Export[nb,nbText,"Text"];]];
+cleanNotebooks[]:=Module[{cleanupChoice=ChoiceDialog["What to clean?",{"All notebooks below a specific directory"->1,"A specific notebook"->2}]},
+Switch[cleanupChoice,1,With[{directory=SystemDialogInput["Directory",NotebookDirectory[]]},cleanNotebook/@FileNames["*.nb",directory,Infinity]],2,With[{notebook=SystemDialogInput["FileOpen",{NotebookDirectory[],{"Wolfram Notebook"->{"*.nb"},"All files"->{"*"}}}]},If[Head[notebook]===List,cleanNotebook/@notebook,cleanNotebook@notebook]]]];
 simplifyRule=Thread[Rule[#[[All,1]],#[[All,2]]//.#]]&;
 convertToSInumbers=QuantityMagnitude[UnitConvert[#]]&;
 mapFunctionToRuleValues[function_,ruleList_]:=Normal[Map[function,Association[ruleList]]];
